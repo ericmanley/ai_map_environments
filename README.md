@@ -1,2 +1,3 @@
-# ai_map_environments
-Code for map-based exercises in my AI class
+# AI Map Environments
+
+This repository hosts code for map-based agent environments in Eric Manley's CS 143: Artificial Intelligence class.
