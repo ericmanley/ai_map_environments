@@ -150,11 +150,12 @@ class StreetSweeperBotEnvironment:
             return None
         
     
-    def backup(self):
+    def backup(self,how_many=1):
         """ this is necessary if the bot gets stuck with no outgoing streets
             if so, a free back up is allowed
         """
-        self.__bot_route.pop() #remove the most recent node
+        for _ in range(how_many):
+            self.__bot_route.pop() #remove the most recent node
         self.__bot_location = self.__bot_route[-1] #reset the location to the previous node
             
     def get_battery_life(self):
