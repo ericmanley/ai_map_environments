@@ -14,7 +14,6 @@ setup(
         "networkx",
         "osmnx",
         "matplotlib",
-        "copy",
         "mapclassify"
     ],
     classifiers=[
