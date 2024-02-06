@@ -1,5 +1,5 @@
 """
-This code is an environment for use with the Street Sweeper Bot assignment.
+This code is an environment for use with the Street Sweeper World assignment.
 """
 
 import osmnx as ox
@@ -8,7 +8,7 @@ import random
 from matplotlib import pyplot as plt
 import copy
 
-class StreetSweeperBotEnvironment:
+class StreetSweeperWorld:
     
     def __init__(self,place='Des Moines, Iowa, USA',map_number=None):
         

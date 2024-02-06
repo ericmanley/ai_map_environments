@@ -1,1 +1,1 @@
-from .street_sweeper import StreetSweeperBotEnvironment
+from .street_sweeper import StreetSweeperWorld
