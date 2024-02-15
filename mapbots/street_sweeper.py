@@ -56,15 +56,33 @@ class StreetSweeperWorld:
         Randomly marks certain regions of the map as dirty based on random selection of nodes
         and radii to define dirty areas.
         """
+        #we'll use these to determine how big this map is
         num_nodes = len(self._street_graph.nodes)
-        num_dirty_regions = random.randint(max(int(num_nodes * 0.002), 1), max(int(num_nodes * 0.005), 1))
+        num_edges = len(self._street_graph.edges)
+        #print("Number of nodes and edges:",num_nodes, num_edges)
         
+        # Initialize all streets as 'clean'
+        for u, v, key in self._street_graph.edges(keys=True):
+            self._street_graph[u][v][key]['cleanliness'] = 'clean'
+
+        # Randomly determine the number of dirty regions
+        # between a fifth and a half of 1 percent of intersections
+        num_dirty_regions = random.randint(max(int(num_nodes*0.002),1), max(int(num_nodes*0.005),1))
+
+        # Create dirty regions
         for _ in range(num_dirty_regions):
+            # Choose a random node as the center of a dirty region
             center_node = random.choice(list(self._street_graph.nodes()))
-            radius = random.randint(1, 2000)  # Random radius between 1 and 2000 meters
-            self._dirty_regions.append({"center": center_node, "size": radius})
-            
+
+            # Random radius between 1 and 2000 meters
+            radius = random.randint(1, 2000)
+
+            self._dirty_regions.append({"center":center_node,"size":radius})
+
+            # Get all nodes within this radius (in network distance)
             subgraph = nx.ego_graph(self._street_graph, center_node, radius=radius, distance='length')
+
+            # Mark edges within this radius as 'dirty'
             for u, v, key in subgraph.edges(keys=True):
                 if self._street_graph.has_edge(u, v, key):
                     self._street_graph[u][v][key]['cleanliness'] = 'dirty'
