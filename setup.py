@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='mapbots',  # Replace with your own package name
-    version='0.1.2',  # The initial release version
+    name='mapbots',
+    version='0.1.3',  
     author='Eric Manley',
     author_email='eric.manley@drake.edu',
     description='tools for making softbots that operate on maps',

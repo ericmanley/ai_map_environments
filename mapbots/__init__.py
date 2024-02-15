@@ -1,1 +1,1 @@
-from .street_sweeper import StreetSweeperWorld
+from .street_sweeper import StreetSweeperWorld, FullyObservableStreetSweeperWorld
