@@ -215,9 +215,9 @@ class FullyObservableStreetSweeperWorld(StreetSweeperWorld):
     def get_dirty_regions(self):
         return self._dirty_regions
 
-
-testworld = FullyObservableStreetSweeperWorld()
-print(testworld.get_current_location())
-print(testworld.get_outgoing_streets_from_location(testworld.get_current_location()["location_id"]))
-print(testworld.get_incoming_streets_from_location(testworld.get_current_location()["location_id"]))
-print(testworld.get_dirty_regions())
+#doing some quick tests
+#testworld = FullyObservableStreetSweeperWorld()
+#print(testworld.get_current_location())
+#print(testworld.get_outgoing_streets_from_location(testworld.get_current_location()["location_id"]))
+#print(testworld.get_incoming_streets_from_location(testworld.get_current_location()["location_id"]))
+#print(testworld.get_dirty_regions())
