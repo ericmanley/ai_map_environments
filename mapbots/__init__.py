@@ -1,1 +1,2 @@
 from .street_sweeper import StreetSweeperWorld, FullyObservableStreetSweeperWorld
+from .tsp import TravellingSalespersonProblem
