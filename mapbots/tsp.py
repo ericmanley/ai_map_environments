@@ -115,8 +115,8 @@ class TravellingSalesAgentProblem:
 
 
 # testing
-tsp = TravellingSalesAgentProblem()
-tsp.display_map()
+#tsp = TravellingSalesAgentProblem()
+# tsp.display_map()
 # print("origin",tsp.get_origin_location())
 # dests = tsp.get_destination_locations()
 # print("dests",dests)
