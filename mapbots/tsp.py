@@ -74,10 +74,10 @@ class TravellingSalesAgentProblem:
     def display_map(self,route=None):
 
         if not route:
-            fig, ax = ox.plot_graph_route(self._street_graph,[self._origin], route_color="blue", bgcolor="gray", edge_color="white", node_size=1, show=False, close=False)
+            fig, ax = ox.plot_graph_route(self._street_graph,[self._origin], route_color="blue", bgcolor="gray", edge_color="white", node_size=0, show=False, close=False)
         else:
             full_route = self._get_full_route(location_order=route)
-            fig, ax = ox.plot_graph_route(self._street_graph,full_route, route_color="blue", bgcolor="gray", edge_color="white", node_size=1, show=False, close=False)
+            fig, ax = ox.plot_graph_route(self._street_graph,full_route, route_color="blue", bgcolor="gray", edge_color="white", node_size=0, show=False, close=False)
 
             for destination_node_idx in range(len(route)):
                 ax.text(self._street_graph.nodes[route[destination_node_idx]]['x'], self._street_graph.nodes[route[destination_node_idx]]['y'], str(destination_node_idx+1), color='black', fontsize=12, ha='center', va='center', zorder=6)
