@@ -10,6 +10,7 @@ class TravellingSalesAgentProblem:
         if random_seed:
             random.seed(random_seed)  # Seed the random number generator for repeatable maps
 
+        print("preparing map - this may take some time")
         # Load the street graph from OpenStreetMap data
         self._street_graph = ox.graph_from_place(place, network_type='drive')
 
@@ -25,6 +26,31 @@ class TravellingSalesAgentProblem:
         random_locations = random.sample(list(self._street_graph.nodes()),num_locations+1)
         self._origin = random_locations[0]
         self._destinations = random_locations[1:]
+
+        # cache all travel times
+        print("calculating travel times - this may take some time")
+        self._travel_times = self._calculate_pairwise_destination_costs()
+
+
+
+    def _calculate_pairwise_destination_costs(self):
+        costs = {}
+        locations = self._destinations[:]+[self._origin]
+        for start in locations:
+            costs[start] = {}
+            for end in locations:
+                if start != end:
+                    path = ox.shortest_path(self._street_graph,start,end,weight="travel_time")
+                    total_travel_time = 0
+                    from_loc = path[0]
+                    for to_loc in path[1:]:
+                        total_travel_time += self._street_graph.get_edge_data(from_loc, to_loc)[0]["travel_time"]
+                        from_loc = to_loc
+                    costs[start][end] = total_travel_time
+                else:
+                    costs[start][end] = 0
+        return costs
+
 
     def get_location_info(self, node_id):
         """
@@ -46,6 +72,8 @@ class TravellingSalesAgentProblem:
         return self._destinations
     
     def route_travel_time(self,route):
+        # commenting out the old method that recalculated every time this was called
+        """
         full_route = self._get_full_route(location_order=route)
         total_travel_time = 0
         from_loc = full_route[0]
@@ -53,6 +81,16 @@ class TravellingSalesAgentProblem:
             total_travel_time += self._street_graph.get_edge_data(from_loc, to_loc)[0]["travel_time"]
             from_loc = to_loc
         return total_travel_time
+        """
+        total_travel_time = 0
+        from_loc = self._origin
+        for to_loc in route:
+            total_travel_time += self._travel_times[from_loc][to_loc]
+            from_loc = to_loc
+        total_travel_time += self._travel_times[from_loc][self._origin]
+        return total_travel_time
+
+
     
     def _get_full_route(self,location_order=None):
         if not location_order:
@@ -117,9 +155,9 @@ class TravellingSalesAgentProblem:
 # testing
 #tsp = TravellingSalesAgentProblem()
 # tsp.display_map()
-# print("origin",tsp.get_origin_location())
-# dests = tsp.get_destination_locations()
-# print("dests",dests)
+#print("origin",tsp.get_origin_location())
+#dests = tsp.get_destination_locations()
+#print("dests",dests)
 
 # tsp.display_map(route=dests)
-# print(tsp.route_travel_time(dests))
+#print(tsp.route_travel_time(dests))
