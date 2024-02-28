@@ -14,7 +14,8 @@ setup(
         "networkx",
         "osmnx",
         "matplotlib",
-        "mapclassify"
+        "mapclassify",
+        "numpy"
     ],
     classifiers=[
         'Programming Language :: Python :: 3',
