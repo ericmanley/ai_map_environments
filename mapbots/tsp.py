@@ -179,11 +179,11 @@ class TravellingSalesAgentProblem:
 
 
 # testing
-tsp = TravellingSalesAgentProblem(place="Des Moines, Iowa, USA")
+#tsp = TravellingSalesAgentProblem(place="Des Moines, Iowa, USA")
 # tsp.display_map()
 #print("origin",tsp.get_origin_location())
-dests = tsp.get_destination_locations()
+#dests = tsp.get_destination_locations()
 #print("dests",dests)
 
-tsp.display_map(route=dests)
+#tsp.display_map(route=dests)
 #print(tsp.route_travel_time(dests))
