@@ -71,7 +71,7 @@ class TravellingSalesAgentProblem:
         return self._origin
     
     def get_destination_locations(self):
-        return self._destinations
+        return self._destinations[:]
     
     def route_travel_time(self,route):
         # commenting out the old method that recalculated every time this was called
@@ -164,13 +164,13 @@ class TravellingSalesAgentProblem:
 
 
 
-        ax.scatter(self._street_graph.nodes[self._origin]['x'], self._street_graph.nodes[self._origin]['y'], c='purple', s=100, label='Origin', zorder=5)
+        ax.scatter(self._street_graph.nodes[self._origin]['x'], self._street_graph.nodes[self._origin]['y'], c='purple', s=200, label='Origin', zorder=5)
 
         # Plot the destinations
         for destination in self._destinations:
             destination_node = self._street_graph.nodes[destination]
             #print(destination_node)
-            ax.scatter(destination_node['x'], destination_node['y'], c='#228b22', s=100, label='Destination', zorder=4)
+            ax.scatter(destination_node['x'], destination_node['y'], c='#228b22', s=200, label='Destination', zorder=4)
 
         # Explicitly draw the updated figure
         ax.figure.canvas.draw()
@@ -179,11 +179,11 @@ class TravellingSalesAgentProblem:
 
 
 # testing
-#tsp = TravellingSalesAgentProblem(place="Los Angeles, California, USA")
+tsp = TravellingSalesAgentProblem(place="Des Moines, Iowa, USA")
 # tsp.display_map()
 #print("origin",tsp.get_origin_location())
-#dests = tsp.get_destination_locations()
+dests = tsp.get_destination_locations()
 #print("dests",dests)
 
-#tsp.display_map(route=dests)
+tsp.display_map(route=dests)
 #print(tsp.route_travel_time(dests))
