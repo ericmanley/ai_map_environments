@@ -37,12 +37,17 @@ def get_location_name(G, node_id):
     return "Unknown Location"
 
 
-def insert_newlines(text, max_line_length=30):
+def format_location_names(text, max_line_length=20):
     """
     Inserts newline characters into text to ensure that each line is at most max_line_length,
     trying not to break words.
     """
-    words = text.split()
+    parts = text.split(",")
+    disp_text = parts[0]
+    if len(disp_text) <= 7 and len(parts) > 1:
+        disp_text += " "+parts[1]
+
+    words = disp_text.split()
     lines = []
     current_line = []
 
@@ -231,7 +236,7 @@ class TravellingSalesAgentProblem:
                 destination_x = self._street_graph.nodes[destination_node_id]['x']
                 destination_y = self._street_graph.nodes[destination_node_id]['y']
                 ax.scatter(destination_x, destination_y, c='#228b22', s=200, label='Destination', zorder=4)
-                formatted_destination = insert_newlines(str(destination))
+                formatted_destination = format_location_names(str(destination))
                 ax.text(destination_x, destination_y, str(formatted_destination), color='black', fontsize=8, ha='center', va='center', zorder=6)
                 
 
@@ -239,7 +244,7 @@ class TravellingSalesAgentProblem:
             origin_x = self._street_graph.nodes[origin_id]['x']
             origin_y = self._street_graph.nodes[origin_id]['y']
             ax.scatter(origin_x, origin_y, c='purple', s=200, label='Origin', zorder=5)
-            formatted_origin = insert_newlines(str(self._origin))
+            formatted_origin = format_location_names(str(self._origin))
             ax.text(origin_x, origin_y, str(formatted_origin), color='black', fontsize=8, ha='center', va='center', zorder=6)
                 
         else:
