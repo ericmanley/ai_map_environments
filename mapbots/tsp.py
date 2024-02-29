@@ -5,10 +5,43 @@ from matplotlib import pyplot as plt
 import copy
 #import matplotlib.colors as mcolors
 import numpy as np
+from geopy.geocoders import Nominatim
+
+def reverse_geocode(lat, lon):
+    """Reverse geocode to get the address of a latitude and longitude."""
+    geolocator = Nominatim(user_agent="DrakeCS143TSPExercises")
+    location = geolocator.reverse((lat, lon), exactly_one=True)
+    if location:
+        return location.address
+    return None
+
+def get_intersection_name(G, node_id):
+    """Construct an intersection name from the nearest edges to the node."""
+    # Get edges connected to the node
+    edges = list(G.edges(node_id, data=True))
+    if edges:
+        streets = {edge[2].get('name') for edge in edges if edge[2].get('name')}
+        if streets:
+            return ' and '.join(sorted(streets))
+    return None
+
+def get_location_name(G, node_id):
+    address = reverse_geocode(G.nodes[node_id]['y'], G.nodes[node_id]['x'])
+    if address:
+        return address
+    
+    intersection_name = get_intersection_name(G, node_id)
+    if intersection_name:
+        return intersection_name
+    
+    return "Unknown Location"
+
+
+
 
 class TravellingSalesAgentProblem:
 
-    def __init__(self,place='Des Moines, Iowa, USA', num_locations=10, random_seed=None):
+    def __init__(self,place='Des Moines, Iowa, USA', num_locations=10, locations=[], random_seed=None):
         if random_seed:
             random.seed(random_seed)  # Seed the random number generator for repeatable maps
 
@@ -24,10 +57,39 @@ class TravellingSalesAgentProblem:
         for node in self._street_graph.nodes:
             self._street_graph.nodes[node]["location_id"] = node
 
+        all_locations = []
+        self._location_map = {}
+
+        for address in locations:
+            try:
+                # Attempt to geocode the address
+                lat, lng = ox.geocode(address)
+                
+                # Find the nearest node to the geocoded location
+                nearest_node = ox.distance.nearest_nodes(self._street_graph, Y=lat, X=lng)
+                
+                # Check if the nearest node is actually within the graph's bounds
+                if nearest_node in self._street_graph.nodes:
+                    all_locations.append(address)
+                    self._location_map[address] = nearest_node
+                else:
+                    print(f"Found {address} outside the bounds of the map. Skipping.")
+            except Exception as e:
+                # Handle cases where geocoding fails or no nearest node is found
+                print(f"Failed to find {address}. Skipping.")
+
+        num_random = (num_locations+1)-len(all_locations)
+
         # randomly select num_locations from the graph nodes (intersections) plus 1 for the origin
-        random_locations = random.sample(list(self._street_graph.nodes()),num_locations+1)
-        self._origin = random_locations[0]
-        self._destinations = random_locations[1:]
+        if num_random > 0:
+            random_locations = random.sample(list(self._street_graph.nodes()),num_random)
+            for loc in random_locations:
+                loc_name = get_location_name(self._street_graph, loc)
+                self._location_map[loc_name] = loc
+                all_locations.append(loc_name)
+
+        self._origin = all_locations[0]
+        self._destinations = all_locations[1:]
 
         # cache all travel times
         print("calculating travel times - this may take some time")
@@ -37,12 +99,12 @@ class TravellingSalesAgentProblem:
 
     def _calculate_pairwise_destination_costs(self):
         costs = {}
-        locations = self._destinations[:]+[self._origin]
-        for start in locations:
+        #locations = self._destinations[:]+[self._origin]
+        for start in self._location_map.keys():
             costs[start] = {}
-            for end in locations:
+            for end in self._location_map.keys():
                 if start != end:
-                    path = ox.shortest_path(self._street_graph,start,end,weight="travel_time")
+                    path = ox.shortest_path(self._street_graph,self._location_map[start],self._location_map[end],weight="travel_time")
                     total_travel_time = 0
                     from_loc = path[0]
                     for to_loc in path[1:]:
@@ -54,18 +116,18 @@ class TravellingSalesAgentProblem:
         return costs
 
 
-    def get_location_info(self, node_id):
-        """
-        Retrieves detailed information about a specific location (node) within the map.
+    # def get_location_info(self, node_id):
+    #     """
+    #     Retrieves detailed information about a specific location (node) within the map.
 
-        :param node_id: The identifier of the node for which information is requested.
-        :return: A dictionary containing the node's information or None if the node does not exist.
-        """
-        if node_id in self._street_graph.nodes:
-            node_info = copy.deepcopy(self._street_graph.nodes[node_id])
-            return node_info
-        else:
-            return None
+    #     :param node_id: The identifier of the node for which information is requested.
+    #     :return: A dictionary containing the node's information or None if the node does not exist.
+    #     """
+    #     if node_id in self._street_graph.nodes:
+    #         node_info = copy.deepcopy(self._street_graph.nodes[node_id])
+    #         return node_info
+    #     else:
+    #         return None
 
     def get_origin_location(self):
         return self._origin
@@ -101,9 +163,13 @@ class TravellingSalesAgentProblem:
         from_loc = self._origin
         route_path = []
         for to_loc in location_order:
-            route_path += ox.shortest_path(self._street_graph,from_loc,to_loc,weight="travel_time")[:-1]
+            from_loc_id = self._location_map[from_loc]
+            to_loc_id = self._location_map[to_loc]
+            route_path += ox.shortest_path(self._street_graph,from_loc_id,to_loc_id,weight="travel_time")[:-1]
             from_loc = to_loc
-        route_path += ox.shortest_path(self._street_graph,from_loc,self._origin,weight="travel_time")
+        from_loc_id = self._location_map[from_loc]
+        to_loc_id = self._location_map[self._origin]
+        route_path += ox.shortest_path(self._street_graph,from_loc_id,to_loc_id,weight="travel_time")
 
         #print("route_path",route_path)
         
@@ -139,13 +205,24 @@ class TravellingSalesAgentProblem:
         if not route:
             #fig, ax = ox.plot_graph_route(self._street_graph,[self._origin], route_color="blue", bgcolor="gray", edge_color="white", node_size=0, show=False, close=False)
             fig, ax = ox.plot_graph(self._street_graph, bgcolor="gray", edge_color="white", node_size=0, show=False, close=False)
+
+            for destination in self._destinations:
+                destination_node_id = self._location_map[destination]
+                destination_x = self._street_graph.nodes[destination_node_id]['x']
+                destination_y = self._street_graph.nodes[destination_node_id]['y']
+                ax.scatter(destination_x, destination_y, c='#228b22', s=200, label='Destination', zorder=4)
+                ax.text(destination_x, destination_y, str(destination), color='black', fontsize=8, ha='center', va='center', zorder=6)
+                
+
+            origin_id = self._location_map[self._origin]
+            origin_x = self._street_graph.nodes[origin_id]['x']
+            origin_y = self._street_graph.nodes[origin_id]['y']
+            ax.scatter(origin_x, origin_y, c='purple', s=200, label='Origin', zorder=5)
         else:
             full_route = self._get_full_route(location_order=route)
             #fig, ax = ox.plot_graph_route(self._street_graph,full_route, route_color="blue", bgcolor="gray", edge_color="white", node_size=0, show=False, close=False)
             fig, ax = ox.plot_graph(self._street_graph, bgcolor="gray", edge_color="white", node_size=0, show=False, close=False)
 
-            for destination_node_idx in range(len(route)):
-                ax.text(self._street_graph.nodes[route[destination_node_idx]]['x'], self._street_graph.nodes[route[destination_node_idx]]['y'], str(destination_node_idx+1), color='black', fontsize=12, ha='center', va='center', zorder=6)
 
             # Get the x and y coordinates of each node in the route
             xs = [self._street_graph.nodes[node]['x'] for node in full_route]
@@ -162,15 +239,25 @@ class TravellingSalesAgentProblem:
                 if i % 10 == 0:
                     ax.annotate("", xy=(x2, y2), xytext=(x1, y1),arrowprops=dict(arrowstyle="-|>",color="black", lw=2),zorder=4)
 
+            for destination_node_idx in range(len(route)):
+                destination_node_id = self._location_map[route[destination_node_idx]]
+                destination_x = self._street_graph.nodes[destination_node_id]['x']
+                destination_y = self._street_graph.nodes[destination_node_id]['y']
+                ax.scatter(destination_x, destination_y, c='#228b22', s=200, label='Destination', zorder=4)
+                ax.text(destination_x, destination_y, str(destination_node_idx+1), color='black', fontsize=12, ha='center', va='center', zorder=6)
+                
 
+            origin_id = self._location_map[self._origin]
+            origin_x = self._street_graph.nodes[origin_id]['x']
+            origin_y = self._street_graph.nodes[origin_id]['y']
+            ax.scatter(origin_x, origin_y, c='purple', s=200, label='Origin', zorder=5)
 
-        ax.scatter(self._street_graph.nodes[self._origin]['x'], self._street_graph.nodes[self._origin]['y'], c='purple', s=200, label='Origin', zorder=5)
-
-        # Plot the destinations
-        for destination in self._destinations:
-            destination_node = self._street_graph.nodes[destination]
-            #print(destination_node)
-            ax.scatter(destination_node['x'], destination_node['y'], c='#228b22', s=200, label='Destination', zorder=4)
+            # # Plot the destinations
+            # for destination in self._destinations:
+            #     destination_id = self._location_map[destination]
+            #     destination_node = self._street_graph.nodes[destination_id]
+            #     #print(destination_node)
+            #     ax.scatter(destination_node['x'], destination_node['y'], c='#228b22', s=200, label='Destination', zorder=4)
 
         # Explicitly draw the updated figure
         ax.figure.canvas.draw()
@@ -178,12 +265,4 @@ class TravellingSalesAgentProblem:
         plt.show()
 
 
-# testing
-#tsp = TravellingSalesAgentProblem(place="Des Moines, Iowa, USA")
-# tsp.display_map()
-#print("origin",tsp.get_origin_location())
-#dests = tsp.get_destination_locations()
-#print("dests",dests)
 
-#tsp.display_map(route=dests)
-#print(tsp.route_travel_time(dests))
