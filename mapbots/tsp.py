@@ -216,7 +216,7 @@ class TravellingSalesAgentProblem:
         Tries to come up with a descriptive name for a location. First it tries to use the 
         Nominatim service. Then it tries to name it based on the streets. Finally, it just uses the node id.
         """
-        address = self.reverse_geocode(self._street_graph.nodes[node_id]['y'], self._street_graph.nodes[node_id]['x'])
+        address = self._reverse_geocode(self._street_graph.nodes[node_id]['y'], self._street_graph.nodes[node_id]['x'])
         if address:
             return address
         
