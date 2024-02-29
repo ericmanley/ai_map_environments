@@ -244,7 +244,7 @@ class TravellingSalesAgentProblem:
                 destination_y = self._street_graph.nodes[destination_node_id]['y']
                 ax.scatter(destination_x, destination_y, c='#228b22', s=200, label='Destination', zorder=4)
                 formatted_destination = format_location_names(str(destination))
-                ax.text(destination_x, destination_y, str(formatted_destination), color='black', fontsize=8, ha='center', va='center', zorder=6)
+                ax.text(destination_x, destination_y, str(formatted_destination), color='black', fontsize=10, ha='center', va='center', zorder=6)
                 
 
             origin_id = self._location_map[self._origin]
@@ -252,7 +252,7 @@ class TravellingSalesAgentProblem:
             origin_y = self._street_graph.nodes[origin_id]['y']
             ax.scatter(origin_x, origin_y, c='purple', s=200, label='Origin', zorder=5)
             formatted_origin = format_location_names(str(self._origin))
-            ax.text(origin_x, origin_y, str(formatted_origin), color='black', fontsize=8, ha='center', va='center', zorder=6)
+            ax.text(origin_x, origin_y, str(formatted_origin), color='black', fontsize=10, ha='center', va='center', zorder=6)
                 
         else:
             full_route = self._get_full_route(location_order=route)
