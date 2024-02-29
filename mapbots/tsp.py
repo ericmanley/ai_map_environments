@@ -37,7 +37,27 @@ def get_location_name(G, node_id):
     return "Unknown Location"
 
 
+def insert_newlines(text, max_line_length=30):
+    """
+    Inserts newline characters into text to ensure that each line is at most max_line_length,
+    trying not to break words.
+    """
+    words = text.split()
+    lines = []
+    current_line = []
 
+    for word in words:
+        # Check if adding the next word would exceed the max line length
+        if len(' '.join(current_line + [word])) > max_line_length:
+            lines.append(' '.join(current_line))
+            current_line = [word]
+        else:
+            current_line.append(word)
+
+    # Add the last line
+    lines.append(' '.join(current_line))
+
+    return '\n'.join(lines)
 
 class TravellingSalesAgentProblem:
 
@@ -211,13 +231,17 @@ class TravellingSalesAgentProblem:
                 destination_x = self._street_graph.nodes[destination_node_id]['x']
                 destination_y = self._street_graph.nodes[destination_node_id]['y']
                 ax.scatter(destination_x, destination_y, c='#228b22', s=200, label='Destination', zorder=4)
-                ax.text(destination_x, destination_y, str(destination), color='black', fontsize=8, ha='center', va='center', zorder=6)
+                formatted_destination = insert_newlines(str(destination))
+                ax.text(destination_x, destination_y, str(formatted_destination), color='black', fontsize=8, ha='center', va='center', zorder=6)
                 
 
             origin_id = self._location_map[self._origin]
             origin_x = self._street_graph.nodes[origin_id]['x']
             origin_y = self._street_graph.nodes[origin_id]['y']
             ax.scatter(origin_x, origin_y, c='purple', s=200, label='Origin', zorder=5)
+            formatted_origin = insert_newlines(str(self._origin))
+            ax.text(origin_x, origin_y, str(formatted_origin), color='black', fontsize=8, ha='center', va='center', zorder=6)
+                
         else:
             full_route = self._get_full_route(location_order=route)
             #fig, ax = ox.plot_graph_route(self._street_graph,full_route, route_color="blue", bgcolor="gray", edge_color="white", node_size=0, show=False, close=False)
