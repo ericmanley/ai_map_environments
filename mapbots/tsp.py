@@ -6,6 +6,7 @@ import copy
 #import matplotlib.colors as mcolors
 import numpy as np
 from geopy.geocoders import Nominatim
+from geopy.distance import great_circle
 
 def reverse_geocode(lat, lon):
     """Reverse geocode to get the address of a latitude and longitude."""
@@ -95,13 +96,16 @@ class TravellingSalesAgentProblem:
                 
                 # Find the nearest node to the geocoded location
                 nearest_node = ox.distance.nearest_nodes(self._street_graph, Y=lat, X=lng)
+                nearest_node_point = (self._street_graph.nodes[nearest_node]['y'], self._street_graph.nodes[nearest_node]['x'])
+                # Calculate the distance between the geocoded point and the nearest node
+                distance = great_circle((lat, lng), nearest_node_point).meters
                 
                 # Check if the nearest node is actually within the graph's bounds
-                if nearest_node in self._street_graph.nodes:
+                if distance <= 1000:
                     all_locations.append(address)
                     self._location_map[address] = nearest_node
                 else:
-                    print(f"Found {address} outside the bounds of the map. Skipping.")
+                    print(f"Found {address} too far away - probably outside the bounds of the map. Skipping.")
             except Exception as e:
                 # Handle cases where geocoding fails or no nearest node is found
                 print(f"Failed to find {address}. Skipping.")
