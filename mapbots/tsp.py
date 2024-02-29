@@ -69,7 +69,7 @@ class TravellingSalesAgentProblem:
         if num_random > 0:
             random_locations = random.sample(list(self._street_graph.nodes()),num_random)
             for loc in random_locations:
-                loc_name = self.get_location_name(loc)
+                loc_name = self._get_location_name(loc)
                 self._location_name_to_id_map[loc_name] = loc
                 all_locations.append(loc_name)
 
