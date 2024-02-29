@@ -9,11 +9,14 @@ from geopy.geocoders import Nominatim
 
 def reverse_geocode(lat, lon):
     """Reverse geocode to get the address of a latitude and longitude."""
-    geolocator = Nominatim(user_agent="DrakeCS143TSPExercises")
-    location = geolocator.reverse((lat, lon), exactly_one=True)
-    if location:
-        return location.address
-    return None
+    try:
+        geolocator = Nominatim(user_agent="DrakeCS143TSPExercises")
+        location = geolocator.reverse((lat, lon), exactly_one=True)
+        if location:
+            return location.address
+        return None
+    except:
+        return None
 
 def get_intersection_name(G, node_id):
     """Construct an intersection name from the nearest edges to the node."""
@@ -34,7 +37,7 @@ def get_location_name(G, node_id):
     if intersection_name:
         return intersection_name
     
-    return "Unknown Location"
+    return str(node_id) #unknown location
 
 
 def format_location_names(text, max_line_length=20):
