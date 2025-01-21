@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='mapbots',
-    version='0.1.3',  
+    version='0.1.8',  
     author='Eric Manley',
     author_email='eric.manley@drake.edu',
     description='tools for making softbots that operate on maps',
@@ -14,7 +14,9 @@ setup(
         "networkx",
         "osmnx",
         "matplotlib",
-        "mapclassify"
+        "mapclassify",
+        "numpy",
+        "geopy"
     ],
     classifiers=[
         'Programming Language :: Python :: 3',
