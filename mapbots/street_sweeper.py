@@ -92,8 +92,11 @@ class StreetSweeperWorld:
         Displays the current map with dirty streets marked in brown and clean streets in white.
         The bot's route is highlighted in blue.
         """
+        # make dirty streets brown and clean streets white
         ec = ['brown' if data['cleanliness'] == 'dirty' else 'white' for u, v, key, data in self._street_graph.edges(keys=True, data=True)]
-        fig, ax = ox.plot_graph_route(self._street_graph, self._bot_route, route_color="blue", bgcolor="gray", edge_color=ec, node_size=0, show=False, close=False)
+        # display the route itself in blue
+        fig, ax = ox.plot_graph_route(self._street_graph,self._bot_route, route_color="blue", bgcolor="gray", edge_color=ec, node_size=0, show=False, close=False)
+        
         plt.show()
 
     def _get_full_edge_data(self,u,v):
